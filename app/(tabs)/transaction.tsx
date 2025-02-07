@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, FlatList } from 'react-native';
+import { View, Text, TextInput, FlatList, SafeAreaView } from 'react-native';
 import { useRouter } from 'expo-router';
 
 interface Transaction {
@@ -37,7 +37,8 @@ const TransactionsPage: React.FC<TransactionsPageProps> = () => {
   });
 
   return (
-    <View className="flex-1 bg-gray-100 p-4 mt-5">
+    < SafeAreaView className='flex-1'>
+      <View className="flex-1 bg-gray-100 p-4 mt-5">
       <Text className="text-lg font-bold text-center mb-4">Toutes les Transactions</Text>
 
       <View className= " bg-white rounded-lg p-4 shadow mb-4">
@@ -72,6 +73,8 @@ const TransactionsPage: React.FC<TransactionsPageProps> = () => {
         )}
       />
     </View>
+    </SafeAreaView>
+    
   );
 };
 

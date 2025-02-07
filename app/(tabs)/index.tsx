@@ -25,7 +25,7 @@ const Index = () => {
 
       {/* Titre */}
       <Text className="mt-5 text-4xl font-bold">
-        My
+        Sama
         <Text className="text-orange-500">Budget</Text>
       </Text>
     </View>

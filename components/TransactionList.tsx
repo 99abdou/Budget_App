@@ -1,52 +1,47 @@
-import React from 'react';
-import { View, Text, FlatList, TouchableOpacity } from 'react-native';
-import { useRouter } from 'expo-router';
+import React, { useEffect } from 'react';
+import { View, Text, ActivityIndicator, Alert } from 'react-native';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchTransactions } from '../Actions/transactionReducer';
+import { RootState, AppDispatch } from '../store';
 
-interface Transaction {
-  id: number;
-  description: string;
-  amount: number;
-  type: 'Revenu' | 'Dépense';
-}
+const TransactionList = () => {
+  const dispatch = useDispatch<AppDispatch>();
+  const { transactions, loading, error } = useSelector((state: RootState) => state.transactions);
 
-interface TransactionListProps {
-  transactions: Transaction[];
-  isFullList?: boolean; // Détermine si toutes les transactions doivent être affichées
-}
+  // Charger les transactions au montage
+  useEffect(() => {
+    dispatch(fetchTransactions());
+  }, [dispatch]);
 
-const TransactionList: React.FC<TransactionListProps> = ({ transactions, isFullList = false,  }) => {
-  const router = useRouter();
+  if (loading) {
+    return (
+      <View className="flex-1 items-center justify-center">
+        <ActivityIndicator size="large" color="#0000ff" />
+      </View>
+    );
+  }
 
-  // Limiter à 3 transactions si ce n'est pas la liste complète
-  const displayedTransactions = isFullList ? transactions : transactions.slice(0, 3);
+  if (error) {
+    Alert.alert('Erreur', error);
+    return null;
+  }
 
   return (
-    <View>
-      <View className="flex-row justify-between p-4">
-        <Text className="text-lg font-bold text-center mb-2">Historique</Text>
-        {!isFullList && (
-          <TouchableOpacity onPress={() => router.push('/transaction')} className="rounded-lg">
-            <Text className="text-lg text-black text-center mb-4">Voir tout</Text>
-          </TouchableOpacity>
-        )}
-      </View>
-
-      <FlatList
-        data={displayedTransactions}
-        keyExtractor={(item) => item.id.toString()}
-        contentContainerStyle={{ flexGrow: 1 }} 
-        renderItem={({ item }) => (
-          <View className="flex-row justify-between bg-white rounded-lg p-4 shadow mb-2">
-            <View>
-              <Text className='text-lg font-bold'>{item.description}</Text>
-              <Text>Vous avez une {item.type} </Text>
-            </View>
-            <Text className={item.amount < 0 ? 'text-red-500' : 'text-green-500'}>
-              {item.amount > 0 ? `+${item.amount}fr` : `${item.amount}fr`}
+    <View className="p-4">
+      <Text className="text-2xl font-bold mb-4">Liste des Transactions</Text>
+      {transactions.length > 0 ? (
+        transactions.map((transaction) => (
+          <View key={transaction.id} className="p-4 mb-2 bg-gray-100 rounded-lg shadow-lg">
+            <Text className="text-lg font-bold">{transaction.description}</Text>
+            <Text className="text-base">{transaction.montant} cfa</Text>
+            <Text className="text-sm text-gray-500">
+              {new Date(transaction.date).toLocaleDateString()}
             </Text>
           </View>
-        )}
-      />
+        ))
+      ) : (
+        <Text className="text-center text-gray-500">Aucune transaction disponible</Text>
+      )}
     </View>
   );
 };
